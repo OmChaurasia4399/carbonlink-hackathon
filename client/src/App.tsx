@@ -8,6 +8,7 @@ import { LandingPage } from "@/components/LandingPage";
 import { Dashboard } from "@/components/Dashboard";
 import { LearnEarnDashboard } from "@/components/LearnEarnDashboard";
 import { MarketDashboard } from "@/components/MarketDashboard";
+import { CompanyDetail } from "@/components/CompanyDetail";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/learn-earn" component={LearnEarnDashboard} />
       <Route path="/market" component={MarketDashboard} />
+      <Route path="/market/company/:id" component={CompanyDetail} />
       <Route component={NotFound} />
     </Switch>
   );

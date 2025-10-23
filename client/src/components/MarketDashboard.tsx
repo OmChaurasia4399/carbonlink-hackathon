@@ -359,44 +359,46 @@ export function MarketDashboard() {
               <Button variant="outline" size="sm" data-testid="button-filter">Filter by Sector</Button>
             </div>
             {companies.map((company) => (
-              <Card key={company.id} className="hover-elevate" data-testid={`card-company-${company.id}`}>
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex gap-4 flex-1">
-                      <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                        <Building2 className="h-6 w-6 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <CardTitle className="text-lg">{company.name}</CardTitle>
-                          <Badge variant="outline" className="font-mono text-xs">{company.ticker}</Badge>
-                          {getSentimentBadge(company.sentiment)}
+              <Link key={company.id} href={`/market/company/${company.id}`}>
+                <Card className="hover-elevate cursor-pointer" data-testid={`card-company-${company.id}`}>
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex gap-4 flex-1">
+                        <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                          <Building2 className="h-6 w-6 text-primary" />
                         </div>
-                        <div className="grid md:grid-cols-3 gap-4 text-sm">
-                          <div>
-                            <div className="text-muted-foreground">ESG Score</div>
-                            <div className="font-semibold text-chart-1">{company.esgScore}/100</div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <CardTitle className="text-lg">{company.name}</CardTitle>
+                            <Badge variant="outline" className="font-mono text-xs">{company.ticker}</Badge>
+                            {getSentimentBadge(company.sentiment)}
                           </div>
-                          <div>
-                            <div className="text-muted-foreground">Emission Trend</div>
-                            <div className="font-semibold text-chart-1">{company.emissions}%</div>
+                          <div className="grid md:grid-cols-3 gap-4 text-sm">
+                            <div>
+                              <div className="text-muted-foreground">ESG Score</div>
+                              <div className="font-semibold text-chart-1">{company.esgScore}/100</div>
+                            </div>
+                            <div>
+                              <div className="text-muted-foreground">Emission Trend</div>
+                              <div className="font-semibold text-chart-1">{company.emissions}%</div>
+                            </div>
+                            <div>
+                              <div className="text-muted-foreground">Green Investment</div>
+                              <div className="font-semibold">{company.investments}</div>
+                            </div>
                           </div>
-                          <div>
-                            <div className="text-muted-foreground">Green Investment</div>
-                            <div className="font-semibold">{company.investments}</div>
-                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <div className="text-sm text-muted-foreground mb-1">Price Impact</div>
+                        <div className={`text-xl font-bold font-mono ${company.priceImpact > 0 ? 'text-chart-1' : 'text-destructive'}`}>
+                          {company.priceImpact > 0 ? '+' : ''}{company.priceImpact}%
                         </div>
                       </div>
                     </div>
-                    <div className="text-right flex-shrink-0">
-                      <div className="text-sm text-muted-foreground mb-1">Price Impact</div>
-                      <div className={`text-xl font-bold font-mono ${company.priceImpact > 0 ? 'text-chart-1' : 'text-destructive'}`}>
-                        {company.priceImpact > 0 ? '+' : ''}{company.priceImpact}%
-                      </div>
-                    </div>
-                  </div>
-                </CardHeader>
-              </Card>
+                  </CardHeader>
+                </Card>
+              </Link>
             ))}
           </div>
         )}
