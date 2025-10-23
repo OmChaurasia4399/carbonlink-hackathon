@@ -16,7 +16,8 @@ import {
   DollarSign,
   ArrowUpRight,
   ArrowDownRight,
-  Minus
+  Minus,
+  Home
 } from "lucide-react";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
@@ -128,9 +129,15 @@ export function MarketDashboard() {
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/dashboard">
-              <Button variant="ghost" className="gap-2" data-testid="button-dashboard">
+              <Button variant="ghost" className="gap-2" data-testid="button-home">
+                <Home className="h-4 w-4" />
+                <span className="hidden sm:inline">Dashboard</span>
+              </Button>
+            </Link>
+            <Link href="/learn-earn">
+              <Button variant="ghost" className="gap-2" data-testid="button-learn-earn">
                 <Sprout className="h-4 w-4" />
-                <span className="hidden sm:inline">My Dashboard</span>
+                <span className="hidden sm:inline">Learn & Earn</span>
               </Button>
             </Link>
             <ThemeToggle />

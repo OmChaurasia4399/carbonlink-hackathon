@@ -1,94 +1,116 @@
-import { useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ThemeToggle } from "./ThemeToggle";
 import { 
   Leaf, 
-  TrendingUp, 
-  Award, 
-  Plus, 
-  Clock, 
-  CheckCircle2, 
-  AlertCircle,
-  Trees,
-  Wind,
-  Sun,
-  Droplets,
-  ChevronRight,
-  MapPin,
-  Calendar
+  TrendingUp,
+  Sprout,
+  ArrowRight,
+  ExternalLink,
+  Clock,
+  Building2,
+  Globe,
+  Newspaper,
+  TrendingDown,
+  DollarSign,
+  BarChart3
 } from "lucide-react";
 
 export function Dashboard() {
-  const [activeTab, setActiveTab] = useState<"overview" | "actions" | "impact">("overview");
-
-  const userStats = {
-    totalCredits: 245,
-    co2Offset: 1850,
-    treesPlanted: 124,
-    rank: 3,
-    monthlyGoal: 75,
-    currentProgress: 68
-  };
-
-  const ecoActions = [
-    { 
-      id: 1, 
-      type: "Tree Planting", 
-      status: "verified", 
-      credits: 45, 
-      date: "2025-01-15", 
-      location: "Amazon Rainforest, Brazil",
-      icon: Trees,
-      co2: 225
+  // todo: remove mock functionality
+  const carbonNews = [
+    {
+      id: 1,
+      title: "EU Carbon Prices Hit Record High Amid New Climate Regulations",
+      summary: "European carbon allowances reached €95 per ton as the EU implements stricter emission caps under the Fit for 55 package, driving increased demand for carbon credits across voluntary markets.",
+      source: "Carbon Pulse",
+      date: "2 hours ago",
+      category: "Market Update",
+      sentiment: "positive",
+      priceImpact: "+5.2%"
     },
-    { 
-      id: 2, 
-      type: "Solar Panel Installation", 
-      status: "pending", 
-      credits: 120, 
-      date: "2025-01-20", 
-      location: "Rural Farm, Kenya",
-      icon: Sun,
-      co2: 600
+    {
+      id: 2,
+      title: "Major Tech Companies Announce $2B Investment in Carbon Removal Projects",
+      summary: "Google, Microsoft, and Amazon unveil joint initiative to fund large-scale carbon removal technologies including direct air capture and enhanced mineralization projects across 15 countries.",
+      source: "Bloomberg Green",
+      date: "5 hours ago",
+      category: "Industry News",
+      sentiment: "positive",
+      priceImpact: "+3.8%"
     },
-    { 
-      id: 3, 
-      type: "Renewable Energy Adoption", 
-      status: "verified", 
-      credits: 80, 
-      date: "2025-01-10", 
-      location: "Community Center, India",
-      icon: Wind,
-      co2: 400
+    {
+      id: 3,
+      title: "New Study Questions Quality of Some Rainforest Carbon Credits",
+      summary: "Independent research reveals that up to 30% of REDD+ credits may overestimate actual emissions reductions, prompting calls for stricter verification standards in voluntary carbon markets.",
+      source: "Nature Climate Change",
+      date: "8 hours ago",
+      category: "Research",
+      sentiment: "negative",
+      priceImpact: "-2.1%"
     },
+    {
+      id: 4,
+      title: "Global Carbon Market Volume Surpasses $1 Trillion Milestone",
+      summary: "Combined trading across compliance and voluntary carbon markets reached record levels in 2024, with voluntary market transactions growing 85% year-over-year driven by corporate net-zero commitments.",
+      source: "Reuters",
+      date: "12 hours ago",
+      category: "Market Update",
+      sentiment: "positive",
+      priceImpact: "+4.5%"
+    },
+    {
+      id: 5,
+      title: "China Expands National Carbon Trading System to Include New Sectors",
+      summary: "Beijing announces extension of emissions trading scheme to cover steel, cement, and aluminum industries, adding over 3 billion tons of CO2 to the world's largest carbon market.",
+      source: "Financial Times",
+      date: "1 day ago",
+      category: "Policy",
+      sentiment: "positive",
+      priceImpact: "+6.2%"
+    },
+    {
+      id: 6,
+      title: "Blockchain-Based Carbon Credit Registry Gains International Recognition",
+      summary: "New digital platform using distributed ledger technology receives endorsement from UNFCCC, promising enhanced transparency and reduced fraud in carbon credit trading.",
+      source: "CoinDesk",
+      date: "1 day ago",
+      category: "Technology",
+      sentiment: "positive",
+      priceImpact: "+1.8%"
+    },
+    {
+      id: 7,
+      title: "Renewable Energy Credits See Price Decline Amid Oversupply",
+      summary: "Solar and wind renewable energy certificates drop 15% in Q4 as rapid deployment of clean energy projects outpaces corporate demand, analysts warn of market correction.",
+      source: "Wood Mackenzie",
+      date: "2 days ago",
+      category: "Market Update",
+      sentiment: "negative",
+      priceImpact: "-4.3%"
+    },
+    {
+      id: 8,
+      title: "Indigenous Communities Launch Direct Carbon Credit Sales Platform",
+      summary: "Coalition of Amazon rainforest communities bypasses traditional intermediaries with new marketplace, aiming to increase revenue share for forest guardians from 20% to 70%.",
+      source: "Mongabay",
+      date: "2 days ago",
+      category: "Social Impact",
+      sentiment: "positive",
+      priceImpact: "+2.5%"
+    }
   ];
 
-  const actionCategories = [
-    { name: "Reforestation", icon: Trees, color: "text-chart-1" },
-    { name: "Solar Energy", icon: Sun, color: "text-chart-3" },
-    { name: "Wind Power", icon: Wind, color: "text-chart-2" },
-    { name: "Water Conservation", icon: Droplets, color: "text-chart-4" },
-  ];
-
-  const getStatusBadge = (status: string) => {
-    const variants = {
-      verified: { variant: "default" as const, icon: CheckCircle2, text: "Verified" },
-      pending: { variant: "secondary" as const, icon: Clock, text: "Pending" },
-      rejected: { variant: "destructive" as const, icon: AlertCircle, text: "Rejected" }
-    };
-    const config = variants[status as keyof typeof variants];
-    const Icon = config.icon;
-    return (
-      <Badge variant={config.variant} className="gap-1">
-        <Icon className="h-3 w-3" />
-        {config.text}
-      </Badge>
-    );
+  const getSentimentBadge = (sentiment: string) => {
+    if (sentiment === "positive") {
+      return <Badge className="gap-1"><TrendingUp className="h-3 w-3" />Positive</Badge>;
+    } else if (sentiment === "negative") {
+      return <Badge variant="destructive" className="gap-1"><TrendingDown className="h-3 w-3" />Negative</Badge>;
+    }
+    return <Badge variant="secondary">Neutral</Badge>;
   };
 
   return (
@@ -102,12 +124,6 @@ export function Dashboard() {
             </div>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/market">
-              <Button variant="ghost" className="gap-2" data-testid="button-market">
-                <TrendingUp className="h-4 w-4" />
-                <span className="hidden sm:inline">Market Data</span>
-              </Button>
-            </Link>
             <ThemeToggle />
             <Avatar data-testid="avatar-user">
               <AvatarFallback>JD</AvatarFallback>
@@ -118,231 +134,137 @@ export function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Welcome back, John</h1>
-          <p className="text-muted-foreground">Track your eco-actions and environmental impact</p>
+          <h1 className="text-3xl font-bold mb-2">Carbon Market Dashboard</h1>
+          <p className="text-muted-foreground">Stay updated with the latest carbon market news and trends</p>
         </div>
 
-        <div className="flex gap-2 mb-8 border-b">
-          <Button
-            variant={activeTab === "overview" ? "default" : "ghost"}
-            onClick={() => setActiveTab("overview")}
-            className="rounded-b-none"
-            data-testid="button-tab-overview"
-          >
-            Overview
-          </Button>
-          <Button
-            variant={activeTab === "actions" ? "default" : "ghost"}
-            onClick={() => setActiveTab("actions")}
-            className="rounded-b-none"
-            data-testid="button-tab-actions"
-          >
-            My Actions
-          </Button>
-          <Button
-            variant={activeTab === "impact" ? "default" : "ghost"}
-            onClick={() => setActiveTab("impact")}
-            className="rounded-b-none"
-            data-testid="button-tab-impact"
-          >
-            Impact
-          </Button>
-        </div>
-
-        {activeTab === "overview" && (
-          <div className="space-y-8">
-            <div className="grid md:grid-cols-4 gap-4">
-              <Card data-testid="card-stat-credits">
-                <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Credits</CardTitle>
-                  <Award className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-primary">{userStats.totalCredits}</div>
-                  <p className="text-xs text-muted-foreground">CarbonLink Credits</p>
-                </CardContent>
-              </Card>
-              <Card data-testid="card-stat-co2">
-                <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">CO₂ Offset</CardTitle>
-                  <Leaf className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-chart-1">{userStats.co2Offset}</div>
-                  <p className="text-xs text-muted-foreground">kg reduced</p>
-                </CardContent>
-              </Card>
-              <Card data-testid="card-stat-trees">
-                <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Trees Planted</CardTitle>
-                  <Trees className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-chart-1">{userStats.treesPlanted}</div>
-                  <p className="text-xs text-muted-foreground">and growing</p>
-                </CardContent>
-              </Card>
-              <Card data-testid="card-stat-rank">
-                <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Global Rank</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-chart-3">#{userStats.rank}</div>
-                  <p className="text-xs text-muted-foreground">among peers</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card data-testid="card-monthly-goal">
-              <CardHeader>
-                <CardTitle>Monthly Goal Progress</CardTitle>
-                <CardDescription>You're {userStats.currentProgress}% towards your {userStats.monthlyGoal} credit goal</CardDescription>
+        <div className="grid md:grid-cols-2 gap-6 mb-12">
+          <Link href="/learn-earn">
+            <Card className="hover-elevate cursor-pointer border-2 border-primary/20" data-testid="card-nav-learn-earn">
+              <CardHeader className="space-y-4">
+                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Sprout className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl mb-2 flex items-center gap-2">
+                    Learn & Earn
+                    <ArrowRight className="h-5 w-5" />
+                  </CardTitle>
+                  <CardDescription className="text-base">
+                    Document your eco-actions, upload verification proof, and earn CarbonLink Credits for your environmental impact
+                  </CardDescription>
+                </div>
               </CardHeader>
               <CardContent>
-                <Progress value={(userStats.currentProgress / userStats.monthlyGoal) * 100} className="h-3" />
-                <div className="flex justify-between mt-2 text-sm text-muted-foreground">
-                  <span>{userStats.currentProgress} credits earned</span>
-                  <span>{userStats.monthlyGoal - userStats.currentProgress} remaining</span>
+                <div className="flex gap-6 text-sm">
+                  <div>
+                    <div className="font-semibold text-primary">245</div>
+                    <div className="text-muted-foreground">Your Credits</div>
+                  </div>
+                  <div>
+                    <div className="font-semibold text-chart-1">1,850kg</div>
+                    <div className="text-muted-foreground">CO₂ Offset</div>
+                  </div>
+                  <div>
+                    <div className="font-semibold text-chart-1">124</div>
+                    <div className="text-muted-foreground">Trees Planted</div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
+          </Link>
 
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-semibold">Quick Actions</h2>
-              </div>
-              <div className="grid md:grid-cols-4 gap-4">
-                {actionCategories.map((category) => {
-                  const Icon = category.icon;
-                  return (
-                    <Card key={category.name} className="hover-elevate cursor-pointer" data-testid={`card-action-${category.name.toLowerCase().replace(' ', '-')}`}>
-                      <CardHeader className="text-center space-y-4">
-                        <div className="h-12 w-12 rounded-lg bg-muted mx-auto flex items-center justify-center">
-                          <Icon className={`h-6 w-6 ${category.color}`} />
-                        </div>
-                        <CardTitle className="text-base">{category.name}</CardTitle>
-                      </CardHeader>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === "actions" && (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-semibold">My Eco-Actions</h2>
-              <Button className="gap-2" data-testid="button-add-action">
-                <Plus className="h-4 w-4" />
-                Add Action
-              </Button>
-            </div>
-            {ecoActions.map((action) => {
-              const Icon = action.icon;
-              return (
-                <Card key={action.id} className="hover-elevate" data-testid={`card-action-${action.id}`}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex gap-4 flex-1">
-                        <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                          <Icon className="h-6 w-6 text-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-2">
-                            <CardTitle className="text-lg">{action.type}</CardTitle>
-                            {getStatusBadge(action.status)}
-                          </div>
-                          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3" />
-                              {action.location}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {action.date}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <div className="text-2xl font-bold text-primary">{action.credits}</div>
-                        <div className="text-xs text-muted-foreground">credits</div>
-                        <div className="text-sm text-muted-foreground mt-1">{action.co2}kg CO₂</div>
-                      </div>
-                    </div>
-                  </CardHeader>
-                </Card>
-              );
-            })}
-          </div>
-        )}
-
-        {activeTab === "impact" && (
-          <div className="space-y-6">
-            <Card data-testid="card-total-impact">
-              <CardHeader>
-                <CardTitle className="text-2xl">Your Environmental Impact</CardTitle>
-                <CardDescription>Total contribution to carbon offset</CardDescription>
+          <Link href="/market">
+            <Card className="hover-elevate cursor-pointer border-2 border-chart-2/20" data-testid="card-nav-market">
+              <CardHeader className="space-y-4">
+                <div className="h-12 w-12 rounded-lg bg-chart-2/10 flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-chart-2" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl mb-2 flex items-center gap-2">
+                    Market Intelligence
+                    <ArrowRight className="h-5 w-5" />
+                  </CardTitle>
+                  <CardDescription className="text-base">
+                    Access real-time carbon credit pricing, company ESG analytics, and AI-driven market sentiment predictions
+                  </CardDescription>
+                </div>
               </CardHeader>
-              <CardContent className="space-y-8">
-                <div className="grid md:grid-cols-3 gap-6">
-                  <div className="text-center space-y-2">
-                    <div className="text-4xl font-bold text-chart-1">{userStats.co2Offset}kg</div>
-                    <div className="text-sm text-muted-foreground">Total CO₂ Offset</div>
+              <CardContent>
+                <div className="flex gap-6 text-sm">
+                  <div>
+                    <div className="font-semibold font-mono text-chart-2">$24.50</div>
+                    <div className="text-muted-foreground">Current Price</div>
                   </div>
-                  <div className="text-center space-y-2">
-                    <div className="text-4xl font-bold text-chart-1">{userStats.treesPlanted}</div>
-                    <div className="text-sm text-muted-foreground">Trees Planted</div>
+                  <div>
+                    <div className="font-semibold text-chart-1">+2.3%</div>
+                    <div className="text-muted-foreground">24h Change</div>
                   </div>
-                  <div className="text-center space-y-2">
-                    <div className="text-4xl font-bold text-primary">{userStats.totalCredits}</div>
-                    <div className="text-sm text-muted-foreground">Credits Earned</div>
+                  <div>
+                    <div className="font-semibold font-mono">$1.25M</div>
+                    <div className="text-muted-foreground">Volume</div>
                   </div>
-                </div>
-                <div className="pt-6 border-t">
-                  <p className="text-muted-foreground">
-                    Your efforts are equivalent to removing <span className="font-semibold text-foreground">3.7 cars</span> from the road for a year,
-                    or powering <span className="font-semibold text-foreground">2.1 homes</span> with clean energy for a month.
-                  </p>
                 </div>
               </CardContent>
             </Card>
+          </Link>
+        </div>
 
-            <Card>
+        <div className="mb-6 flex items-center gap-3">
+          <Newspaper className="h-6 w-6 text-primary" />
+          <h2 className="text-2xl font-semibold">Latest Carbon Market News</h2>
+        </div>
+
+        <div className="grid gap-6">
+          {carbonNews.map((news) => (
+            <Card key={news.id} className="hover-elevate" data-testid={`card-news-${news.id}`}>
               <CardHeader>
-                <CardTitle>Impact by Category</CardTitle>
+                <div className="flex items-start justify-between gap-4 mb-3">
+                  <div className="flex gap-3 flex-wrap">
+                    <Badge variant="outline" data-testid={`badge-category-${news.id}`}>{news.category}</Badge>
+                    {getSentimentBadge(news.sentiment)}
+                    <Badge variant="secondary" className="gap-1 font-mono">
+                      <DollarSign className="h-3 w-3" />
+                      {news.priceImpact}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground flex-shrink-0">
+                    <Clock className="h-3 w-3" />
+                    {news.date}
+                  </div>
+                </div>
+                <CardTitle className="text-xl leading-tight hover:text-primary transition-colors cursor-pointer">
+                  {news.title}
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">Reforestation</span>
-                      <span className="text-sm text-muted-foreground">60%</span>
-                    </div>
-                    <Progress value={60} className="h-2" />
+                <p className="text-muted-foreground leading-relaxed">
+                  {news.summary}
+                </p>
+                <div className="flex items-center justify-between pt-2 border-t">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Globe className="h-4 w-4" />
+                    <span className="font-medium">{news.source}</span>
                   </div>
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">Renewable Energy</span>
-                      <span className="text-sm text-muted-foreground">25%</span>
-                    </div>
-                    <Progress value={25} className="h-2" />
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">Waste Reduction</span>
-                      <span className="text-sm text-muted-foreground">15%</span>
-                    </div>
-                    <Progress value={15} className="h-2" />
-                  </div>
+                  <Button variant="ghost" size="sm" className="gap-2" data-testid={`button-read-${news.id}`}>
+                    Read Full Article
+                    <ExternalLink className="h-3 w-3" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>
-          </div>
-        )}
+          ))}
+        </div>
+
+        <div className="mt-12 text-center">
+          <p className="text-muted-foreground mb-4">Want to see more detailed market analytics?</p>
+          <Link href="/market">
+            <Button size="lg" variant="outline" className="gap-2" data-testid="button-view-analytics">
+              <BarChart3 className="h-5 w-5" />
+              View Full Market Dashboard
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );
