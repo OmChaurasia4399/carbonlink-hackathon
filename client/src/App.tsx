@@ -9,6 +9,9 @@ import { Dashboard } from "@/components/Dashboard";
 import { LearnEarnDashboard } from "@/components/LearnEarnDashboard";
 import { MarketDashboard } from "@/components/MarketDashboard";
 import { CompanyDetail } from "@/components/CompanyDetail";
+import { EducationRoadmap } from "@/components/EducationRoadmap";
+import { LevelQuiz } from "@/components/LevelQuiz";
+import { VideoTutorials } from "@/components/VideoTutorials";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -17,6 +20,9 @@ function Router() {
       <Route path="/" component={LandingPage} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/learn-earn" component={LearnEarnDashboard} />
+      <Route path="/learn-earn/roadmap" component={EducationRoadmap} />
+      <Route path="/learn-earn/level/:id" component={LevelQuiz} />
+      <Route path="/learn-earn/videos" component={VideoTutorials} />
       <Route path="/market" component={MarketDashboard} />
       <Route path="/market/company/:id" component={CompanyDetail} />
       <Route component={NotFound} />

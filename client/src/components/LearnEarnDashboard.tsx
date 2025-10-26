@@ -217,22 +217,59 @@ export function LearnEarnDashboard() {
 
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-semibold">Quick Actions</h2>
+                <h2 className="text-2xl font-semibold">Learning Resources</h2>
               </div>
-              <div className="grid md:grid-cols-4 gap-4">
-                {actionCategories.map((category) => {
-                  const Icon = category.icon;
-                  return (
-                    <Card key={category.name} className="hover-elevate cursor-pointer" data-testid={`card-action-${category.name.toLowerCase().replace(' ', '-')}`}>
-                      <CardHeader className="text-center space-y-4">
-                        <div className="h-12 w-12 rounded-lg bg-muted mx-auto flex items-center justify-center">
-                          <Icon className={`h-6 w-6 ${category.color}`} />
+              <div className="grid md:grid-cols-2 gap-6">
+                <Link href="/learn-earn/roadmap">
+                  <Card className="hover-elevate cursor-pointer h-full" data-testid="card-roadmap">
+                    <CardHeader>
+                      <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                        <Award className="h-6 w-6 text-primary" />
+                      </div>
+                      <CardTitle className="text-xl">Educational Roadmap</CardTitle>
+                      <CardDescription className="text-base">
+                        14-level learning path from carbon credit basics to Indian market mastery
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex gap-4 text-sm">
+                        <div>
+                          <div className="font-semibold text-primary">3/14</div>
+                          <div className="text-muted-foreground">Completed</div>
                         </div>
-                        <CardTitle className="text-base">{category.name}</CardTitle>
-                      </CardHeader>
-                    </Card>
-                  );
-                })}
+                        <div>
+                          <div className="font-semibold text-chart-3">350</div>
+                          <div className="text-muted-foreground">Points Earned</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+                <Link href="/learn-earn/videos">
+                  <Card className="hover-elevate cursor-pointer h-full" data-testid="card-videos">
+                    <CardHeader>
+                      <div className="h-12 w-12 rounded-lg bg-chart-2/10 flex items-center justify-center mb-3">
+                        <Plus className="h-6 w-6 text-chart-2" />
+                      </div>
+                      <CardTitle className="text-xl">Video Tutorials</CardTitle>
+                      <CardDescription className="text-base">
+                        Step-by-step guides on earning carbon credits in India through various methods
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex gap-4 text-sm">
+                        <div>
+                          <div className="font-semibold text-chart-2">12</div>
+                          <div className="text-muted-foreground">Tutorials</div>
+                        </div>
+                        <div>
+                          <div className="font-semibold">6</div>
+                          <div className="text-muted-foreground">Categories</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               </div>
             </div>
           </div>
