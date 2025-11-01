@@ -5,6 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ThemeToggle } from "./ThemeToggle";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { 
   Leaf, 
   TrendingUp, 
@@ -17,12 +28,122 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Minus,
-  Home
+  Home,
+  ShoppingCart,
+  Wallet,
+  ArrowRightLeft,
+  History
 } from "lucide-react";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function MarketDashboard() {
-  const [activeTab, setActiveTab] = useState<"overview" | "companies" | "projects">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "companies" | "projects" | "trading">("overview");
+  const [buyDialogOpen, setBuyDialogOpen] = useState(false);
+  const [sellDialogOpen, setSellDialogOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [buyAmount, setBuyAmount] = useState("");
+  const [sellAmount, setSellAmount] = useState("");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: portfolio = [] } = useQuery<any[]>({
+    queryKey: ["/api/portfolio"],
+  });
+
+  const { data: trades = [] } = useQuery<any[]>({
+    queryKey: ["/api/trades"],
+  });
+
+  const { data: balanceData } = useQuery<{ balance: string }>({
+    queryKey: ["/api/balance"],
+  });
+
+  const buyMutation = useMutation({
+    mutationFn: async (data: { projectId: number; projectName: string; credits: number; pricePerCredit: string }) => {
+      const res = await fetch("/api/trade/buy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Failed to buy credits");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/portfolio"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/trades"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/balance"] });
+      toast({
+        title: "Purchase Successful",
+        description: "Your carbon credits have been added to your portfolio",
+      });
+      setBuyDialogOpen(false);
+      setBuyAmount("");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Purchase Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const sellMutation = useMutation({
+    mutationFn: async (data: { projectId: number; projectName: string; credits: number; pricePerCredit: string }) => {
+      const res = await fetch("/api/trade/sell", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Failed to sell credits");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/portfolio"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/trades"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/balance"] });
+      toast({
+        title: "Sale Successful",
+        description: "Your carbon credits have been sold",
+      });
+      setSellDialogOpen(false);
+      setSellAmount("");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Sale Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleBuy = () => {
+    if (!selectedProject || !buyAmount) return;
+    buyMutation.mutate({
+      projectId: selectedProject.id,
+      projectName: selectedProject.name,
+      credits: parseInt(buyAmount),
+      pricePerCredit: selectedProject.price.toString(),
+    });
+  };
+
+  const handleSell = () => {
+    if (!selectedProject || !sellAmount) return;
+    sellMutation.mutate({
+      projectId: selectedProject.id,
+      projectName: selectedProject.name,
+      credits: parseInt(sellAmount),
+      pricePerCredit: selectedProject.price.toString(),
+    });
+  };
 
   const marketData = {
     currentPrice: 24.50,
@@ -178,6 +299,15 @@ export function MarketDashboard() {
             data-testid="button-tab-projects"
           >
             Credit Projects
+          </Button>
+          <Button
+            variant={activeTab === "trading" ? "default" : "ghost"}
+            onClick={() => setActiveTab("trading")}
+            className="rounded-b-none gap-2"
+            data-testid="button-tab-trading"
+          >
+            <ArrowRightLeft className="h-4 w-4" />
+            Trading
           </Button>
         </div>
 
@@ -445,13 +575,294 @@ export function MarketDashboard() {
                         </div>
                       </div>
                     </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        onClick={() => {
+                          setSelectedProject(project);
+                          setBuyDialogOpen(true);
+                        }}
+                        data-testid={`button-buy-${project.id}`}
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-1" />
+                        Buy
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
               </Card>
             ))}
           </div>
         )}
+
+        {activeTab === "trading" && (
+          <div className="space-y-6">
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Portfolio Value</CardTitle>
+                  <Wallet className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold font-mono">
+                    ${portfolio.reduce((sum: number, item: any) => 
+                      sum + (parseFloat(item.credits) * parseFloat(item.averagePrice)), 0
+                    ).toFixed(2)}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Total value of holdings
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Credits</CardTitle>
+                  <Leaf className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold font-mono">
+                    {portfolio.reduce((sum: number, item: any) => sum + parseInt(item.credits), 0)}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">Carbon credits owned</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Available Balance</CardTitle>
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold font-mono">
+                    ${balanceData?.balance || "0.00"}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">Ready to trade</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Wallet className="h-5 w-5" />
+                    My Holdings
+                  </CardTitle>
+                  <CardDescription>Your carbon credit portfolio</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {portfolio.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No holdings yet. Start buying carbon credits!
+                    </div>
+                  ) : (
+                    portfolio.map((item: any) => {
+                      const matchingProject = projects.find(p => p.id === item.projectId);
+                      return (
+                        <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div className="flex-1">
+                            <div className="font-medium">{item.projectName}</div>
+                            <div className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+                              <span className="font-mono">{item.credits} credits</span>
+                              <span>•</span>
+                              <span className="font-mono">Avg ${parseFloat(item.averagePrice).toFixed(2)}</span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-semibold font-mono">
+                              ${(parseFloat(item.credits) * parseFloat(item.averagePrice)).toFixed(2)}
+                            </div>
+                            {matchingProject && (
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="mt-2"
+                                onClick={() => {
+                                  setSelectedProject(matchingProject);
+                                  setSellDialogOpen(true);
+                                }}
+                              >
+                                Sell
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <History className="h-5 w-5" />
+                    Recent Transactions
+                  </CardTitle>
+                  <CardDescription>Your trading history</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {trades.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No transactions yet
+                    </div>
+                  ) : (
+                    trades.map((trade: any) => (
+                      <div key={trade.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
+                            trade.type === 'buy' ? 'bg-chart-1/10' : 'bg-destructive/10'
+                          }`}>
+                            {trade.type === 'buy' ? (
+                              <ArrowUpRight className="h-4 w-4 text-chart-1" />
+                            ) : (
+                              <ArrowDownRight className="h-4 w-4 text-destructive" />
+                            )}
+                          </div>
+                          <div>
+                            <div className="font-medium">
+                              {trade.type === 'buy' ? 'Bought' : 'Sold'} {trade.credits} credits
+                            </div>
+                            <div className="text-sm text-muted-foreground">{trade.projectName}</div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold font-mono">${parseFloat(trade.totalAmount).toFixed(2)}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {new Date(trade.createdAt).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
       </div>
+
+      <Dialog open={buyDialogOpen} onOpenChange={setBuyDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Buy Carbon Credits</DialogTitle>
+            <DialogDescription>
+              {selectedProject && `Purchase credits from ${selectedProject.name}`}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedProject && (
+            <div className="space-y-4">
+              <div className="p-4 bg-muted rounded-lg space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Available Credits</span>
+                  <span className="font-mono font-semibold">{selectedProject.credits.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Price per Credit</span>
+                  <span className="font-mono font-semibold">${selectedProject.price}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Region</span>
+                  <span className="font-semibold">{selectedProject.region}</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="buy-amount">Number of Credits</Label>
+                <Input
+                  id="buy-amount"
+                  type="number"
+                  placeholder="Enter amount"
+                  value={buyAmount}
+                  onChange={(e) => setBuyAmount(e.target.value)}
+                  min="1"
+                  max={selectedProject.credits}
+                />
+              </div>
+              {buyAmount && (
+                <div className="p-4 bg-chart-1/10 border border-chart-1/20 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Total Cost</span>
+                    <span className="text-2xl font-bold font-mono">
+                      ${(parseFloat(buyAmount) * selectedProject.price).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1" onClick={() => setBuyDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  className="flex-1" 
+                  disabled={!buyAmount || parseFloat(buyAmount) <= 0 || buyMutation.isPending}
+                  onClick={handleBuy}
+                >
+                  {buyMutation.isPending ? "Processing..." : "Confirm Purchase"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={sellDialogOpen} onOpenChange={setSellDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Sell Carbon Credits</DialogTitle>
+            <DialogDescription>
+              {selectedProject && `Sell your credits from ${selectedProject.name}`}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedProject && (
+            <div className="space-y-4">
+              <div className="p-4 bg-muted rounded-lg space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Your Holdings</span>
+                  <span className="font-mono font-semibold">150 credits</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Current Price</span>
+                  <span className="font-mono font-semibold">${selectedProject.price}</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sell-amount">Number of Credits to Sell</Label>
+                <Input
+                  id="sell-amount"
+                  type="number"
+                  placeholder="Enter amount"
+                  value={sellAmount}
+                  onChange={(e) => setSellAmount(e.target.value)}
+                  min="1"
+                  max="150"
+                />
+              </div>
+              {sellAmount && (
+                <div className="p-4 bg-chart-1/10 border border-chart-1/20 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">You'll Receive</span>
+                    <span className="text-2xl font-bold font-mono">
+                      ${(parseFloat(sellAmount) * selectedProject.price).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1" onClick={() => setSellDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  variant="destructive"
+                  className="flex-1" 
+                  disabled={!sellAmount || parseFloat(sellAmount) <= 0 || sellMutation.isPending}
+                  onClick={handleSell}
+                >
+                  {sellMutation.isPending ? "Processing..." : "Confirm Sale"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
